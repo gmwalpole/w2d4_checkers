@@ -7,6 +7,7 @@ class Checkers
   def initialize
     @board = Board.new
     @players = [Player.new("Harry"), Player.new("Henderson")]
+    play
   end
 
   def play
@@ -14,9 +15,14 @@ class Checkers
     cur_player = players[0]
     until check_win
       board.render
-      move = cur_player.get_input
-      parse_and_execute(move)
-
+      puts "#{cur_player.name}'s turn!'"
+      begin
+        move = cur_player.get_input
+        parse_and_execute(move)
+      rescue
+        puts e.message
+        retry
+      end
       cur_player == (players[0] ? players[1] : players[0])
     end
 
@@ -31,7 +37,18 @@ class Checkers
   end
 
   def parse_and_execute(move_string)
-
+    alphabet = %w(A B C D E F G H I J K L M N O P Q R S T U V W X Y Z)
+    start, end_coord = move_string.split(",")
+    start.strip!
+    end_coord.strip!
+    raise "Bad input. Try again." if start.length != 2 || end_coord.length != 2
+    unless alphabet.include?(start[1].upcase) &&
+           alphabet.include?(end_coord[1].upcase)
+      raise "Coordinates end with letters. Try again."
+    end
+    unless start[0].to_i > 0 && end_coord[0].to_i > 0
+      raise "Coordinates end with numbers. Try again."
+    end
   end
 
 end
@@ -45,7 +62,7 @@ class Player
 
   def get_input
     puts "Enter start and end coordinates: (Ex: '1A,2B')"
-    gets
+    gets.chomp
   end
 
 end
